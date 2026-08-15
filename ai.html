@@ -4,50 +4,59 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI Course · Learning Hub</title>
-<meta name="theme-color" content="#faf9f7">
+<meta name="theme-color" content="#0a0c13">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Learning">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="assets/page-ai.css">
-<link rel="stylesheet" href="assets/hub.css">
+<link rel="stylesheet" href="assets/theme.css">
 </head>
-<body>
+<body class="t-ai">
 <div class="wrap">
-  <h1>Ivan's AI Learning Course</h1>
-  <p class="sub">60 days · full-stack → AI engineer → applied scientist · 4–5 hrs/day · all resources free · tuned for MacBook Pro M4 Pro</p>
+  <h1>AI Learning <span class="grad">Course</span></h1>
+  <p class="sub">60 days · full-stack → AI engineer → applied scientist · 4–5 hrs/day · every resource free · tuned for an M4 Pro</p>
 
-  <div class="months">
-    <div class="mo on" data-m="1"><div class="mt">Month 1 · Days 1–30</div><div class="ml">AI Engineer</div><div class="mp" id="mp1"></div></div>
-    <div class="mo p2" data-m="2"><div class="mt">Month 2 · Days 31–60</div><div class="ml">Applied Scientist / MLE</div><div class="mp" id="mp2"></div></div>
+  <div class="card glow" style="margin-bottom:20px">
+    <div class="nums" style="margin:0 0 10px"><b id="ovPct">0%</b><span id="ovCnt"></span></div>
+    <div class="bar"><i id="ovBar" style="width:0%"></i></div>
   </div>
 
-  <div class="bar">
-    <div class="barTop"><b id="barLabel">Month 1 progress</b><span><span class="pct" id="pct">0%</span> <span style="color:var(--dim);font-size:12.5px" id="cnt"></span></span></div>
-    <div class="track"><div class="fill" id="fill"></div></div>
-  </div>
+  <h2 class="sec">Pick a day</h2>
+  <div class="rail-wrap"><div class="rail" id="dvRail"></div></div>
+  <div id="dvDay"></div>
 
-  <div class="tabs" id="tabs"></div>
-  <div id="views"></div>
-
-  <div style="margin-top:22px;text-align:right"><button class="reset" onclick="resetAll()">Reset all progress</button></div>
+  <h2 class="sec">Reference</h2>
+  <div class="tabbar" id="refTabs"></div>
+  <div id="refBody"></div>
 </div>
 
+<script src="assets/ui.js"></script>
+<script>window.PAGE_TRACK="ai";</script>
 <script src="assets/hub.js"></script>
 <script>Hub.init({page:"ai"});</script>
 <script src="assets/data-ai.js"></script>
+<script src="assets/data-eng.js"></script>
+<script src="assets/plans.js"></script>
+<script src="assets/ask.js"></script>
+<script src="assets/day.js"></script>
+<script src="assets/ref.js"></script>
 <script>
-/* storage adapter: the tracker keeps its original API, the hub owns the data */
-let store = Hub.aiStore();
-const save = () => Hub.commitAi(store);
-Hub.onChange(function(){
-  if (document.getElementById("hubModal").classList.contains("on")) return;
-  location.reload();
+function paintOverall(){
+  var p = PLANS.progress("ai");
+  document.getElementById("ovBar").style.width = p.pct + "%";
+  document.getElementById("ovPct").textContent = p.pct + "%";
+  document.getElementById("ovCnt").textContent = p.done + " / " + p.total + " items done";
+}
+window.onHubProgress = paintOverall;
+document.addEventListener("DOMContentLoaded", function(){
+  DayView.mount({ track:"ai", railEl:"dvRail", dayEl:"dvDay", autoFocus: location.hash === "#focus" });
+  REF.mount("ai", "refTabs", "refBody");
+  paintOverall();
 });
+Hub.onChange(function(){ if(!document.getElementById("hubModal").classList.contains("on")) location.reload(); });
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
 </script>
-<script src="assets/app-ai.js"></script>
-<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});</script>
 </body>
 </html>

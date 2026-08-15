@@ -4,99 +4,118 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Learning Hub</title>
-<meta name="theme-color" content="#faf9f7">
+<meta name="theme-color" content="#0a0c13">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Learning">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="assets/hub.css">
+<link rel="stylesheet" href="assets/theme.css">
 </head>
-<body class="dash">
-
+<body>
 <div class="wrap">
-
-  <h1>Learning Hub</h1>
-  <p class="sub">Two tracks, one place. Progress follows you across every device.</p>
+  <h1>Learning <span class="grad">Hub</span></h1>
+  <p class="sub" id="greeting">Two tracks, one place. Progress follows you across every device.</p>
 
   <div class="banner" id="setupBanner" style="display:none">
-    <span><b>Sync isn't set up on this device yet.</b> Progress here stays in this browser until you connect it.</span>
+    <span><b>Sync isn't set up on this device.</b> Progress stays in this browser until you connect it.</span>
     <button id="bannerBtn">Set up sync</button>
   </div>
 
   <div class="hero">
-    <div class="ring">
-      <svg width="108" height="108" viewBox="0 0 108 108">
-        <defs>
-          <linearGradient id="hubgrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#6a5acd"/>
-            <stop offset="100%" stop-color="#2d7d5a"/>
-          </linearGradient>
-        </defs>
-        <circle class="bgc" cx="54" cy="54" r="46" fill="none" stroke-width="9"/>
-        <circle class="fgc" id="ringFg" cx="54" cy="54" r="46" fill="none" stroke-width="9"/>
-      </svg>
-      <div class="lab"><b id="ringPct">0%</b><i>overall</i></div>
-    </div>
-    <div class="heroStats">
-      <div><b id="statDone">0</b><span>items done</span></div>
-      <div><b id="statLeft">0</b><span>remaining</span></div>
-      <div><b id="statStreak">0</b><span>day streak</span></div>
+    <div class="ring" id="heroRing"></div>
+    <div class="tiles">
+      <div class="tile"><b id="statDone">0</b><span>items done</span></div>
+      <div class="tile flame"><b id="statStreak">0</b><span>day streak</span></div>
+      <div class="tile"><b id="statTime">0m</b><span>tracked today</span></div>
     </div>
   </div>
 
-  <h2>Tracks</h2>
-  <div class="tracks">
-    <a class="track-card ai" href="ai.html">
-      <div class="tk">60 days · Months 1–2</div>
-      <h3>AI Learning Course</h3>
-      <div class="meta" id="aiMeta">&nbsp;</div>
-      <div class="tbar"><i id="aiBar" style="width:0%"></i></div>
-      <div class="tnums"><b id="aiPct">0%</b><span id="aiCnt"></span></div>
+  <h2 class="sec">Jump straight in</h2>
+  <div class="quick">
+    <a class="qbtn t-ai" href="ai.html#focus">
+      <span class="ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M13.5 2L4 13.6h6.1L9.6 22 20 10.2h-6.3z"/></svg></span>
+      <span class="tx"><b id="qAiTitle">Start AI day</b><span id="qAiSub">—</span></span>
+      <span class="go"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
     </a>
-    <a class="track-card eng" href="english.html">
+    <a class="qbtn t-eng" href="english.html#focus">
+      <span class="ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 5h16v2H4zM4 11h11v2H4zM4 17h16v2H4z"/></svg></span>
+      <span class="tx"><b id="qEnTitle">Start English day</b><span id="qEnSub">—</span></span>
+      <span class="go"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+    </a>
+  </div>
+
+  <h2 class="sec">Timer</h2>
+  <div class="timerbar" id="timerBar">
+    <div class="lead">
+      <div class="puck" id="tPuck"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
+      <div><b id="tLead">0:00</b><span id="tLeadSub">nothing running — hit ▸ on any task to time it</span></div>
+    </div>
+    <div class="split">
+      <div><b id="tToday">0m</b><span>today</span></div>
+      <div><b id="tAll">0m</b><span>all time</span></div>
+    </div>
+    <button class="btn" id="tStop" style="display:none">Stop &amp; log</button>
+  </div>
+
+  <h2 class="sec" id="todayHd">Up next</h2>
+  <div class="today">
+    <div class="card t-ai" id="aiCard">
+      <div class="hd"><h3 id="aiTodayTitle">—</h3><span class="cnt" id="aiCnt2"></span></div>
+      <div class="dl" id="aiTodayWeek"></div>
+      <ul class="tasks" id="aiToday"></ul>
+      <a class="more" id="aiMore" href="ai.html">Open the full day →</a>
+    </div>
+    <div class="card t-eng" id="enCard">
+      <div class="hd"><h3 id="enTodayTitle">—</h3><span class="cnt" id="enCnt2"></span></div>
+      <div class="dl" id="enTodayWeek"></div>
+      <ul class="tasks" id="enToday"></ul>
+      <a class="more" id="enMore" href="english.html">Open the full day →</a>
+    </div>
+  </div>
+
+  <h2 class="sec">Tracks</h2>
+  <div class="tracks">
+    <a class="track-card t-ai" href="ai.html">
+      <div class="tk">60 days · months 1–2</div>
+      <h3>AI Learning Course</h3>
+      <div class="meta" id="aiMeta"></div>
+      <div class="bar"><i id="aiBar" style="width:0%"></i></div>
+      <div class="nums"><b id="aiPct">0%</b><span id="aiCnt"></span></div>
+    </a>
+    <a class="track-card t-eng" href="english.html">
       <div class="tk">8 weeks · CELPIP + work</div>
       <h3>English Plan</h3>
-      <div class="meta" id="engMeta">&nbsp;</div>
-      <div class="tbar"><i id="engBar" style="width:0%"></i></div>
-      <div class="tnums"><b id="engPct">0%</b><span id="engCnt"></span></div>
+      <div class="meta" id="enMeta"></div>
+      <div class="bar"><i id="enBar" style="width:0%"></i></div>
+      <div class="nums"><b id="enPct">0%</b><span id="enCnt"></span></div>
     </a>
   </div>
 
-  <h2 id="todayHd">Up next</h2>
-  <div class="today">
-    <div class="card ai">
-      <h3 id="aiTodayTitle">—</h3>
-      <div class="dl" id="aiTodayWeek"></div>
-      <ul id="aiToday"></ul>
-    </div>
-    <div class="card eng">
-      <h3 id="engTodayTitle">—</h3>
-      <div class="dl" id="engTodayWeek"></div>
-      <ul id="engToday"></ul>
-    </div>
-  </div>
+  <h2 class="sec">⟳ Daily AI update · 15 min every morning</h2>
+  <div class="card loopcard t-ai" id="loopCard"></div>
 
-  <h2>Activity · last 12 weeks</h2>
+  <h2 class="sec">Activity · last 12 weeks</h2>
   <div class="card">
     <div class="heat" id="heat"></div>
     <div class="heatlab"><span id="heatFrom"></span><span id="heatTo"></span></div>
   </div>
 
-  <h2>Resource library · <span id="resCount"></span></h2>
-  <input id="resSearch" type="search" placeholder="Search all resources…" autocomplete="off">
+  <h2 class="sec">Resource library · <span id="resCount"></span></h2>
+  <input id="resSearch" class="searchbox" type="search" placeholder="Search every resource…" autocomplete="off">
   <div class="res" id="resList"></div>
-
 </div>
 
+<script src="assets/ui.js"></script>
+<script>window.PAGE_TRACK="ai";</script>
 <script src="assets/hub.js"></script>
 <script>Hub.init({page:"home"});</script>
 <script src="assets/data-ai.js"></script>
 <script src="assets/data-eng.js"></script>
+<script src="assets/plans.js"></script>
+<script src="assets/ask.js"></script>
 <script src="assets/dashboard.js"></script>
-<script>
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
-</script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});</script>
 </body>
 </html>
