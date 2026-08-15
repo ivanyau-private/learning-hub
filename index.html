@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learning Hub</title>
+<meta name="theme-color" content="#faf9f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Learning">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="assets/hub.css">
+</head>
+<body class="dash">
+
+<div class="wrap">
+
+  <h1>Learning Hub</h1>
+  <p class="sub">Two tracks, one place. Progress follows you across every device.</p>
+
+  <div class="banner" id="setupBanner" style="display:none">
+    <span><b>Sync isn't set up on this device yet.</b> Progress here stays in this browser until you connect it.</span>
+    <button id="bannerBtn">Set up sync</button>
+  </div>
+
+  <div class="hero">
+    <div class="ring">
+      <svg width="108" height="108" viewBox="0 0 108 108">
+        <defs>
+          <linearGradient id="hubgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6a5acd"/>
+            <stop offset="100%" stop-color="#2d7d5a"/>
+          </linearGradient>
+        </defs>
+        <circle class="bgc" cx="54" cy="54" r="46" fill="none" stroke-width="9"/>
+        <circle class="fgc" id="ringFg" cx="54" cy="54" r="46" fill="none" stroke-width="9"/>
+      </svg>
+      <div class="lab"><b id="ringPct">0%</b><i>overall</i></div>
+    </div>
+    <div class="heroStats">
+      <div><b id="statDone">0</b><span>items done</span></div>
+      <div><b id="statLeft">0</b><span>remaining</span></div>
+      <div><b id="statStreak">0</b><span>day streak</span></div>
+    </div>
+  </div>
+
+  <h2>Tracks</h2>
+  <div class="tracks">
+    <a class="track-card ai" href="ai.html">
+      <div class="tk">60 days · Months 1–2</div>
+      <h3>AI Learning Course</h3>
+      <div class="meta" id="aiMeta">&nbsp;</div>
+      <div class="tbar"><i id="aiBar" style="width:0%"></i></div>
+      <div class="tnums"><b id="aiPct">0%</b><span id="aiCnt"></span></div>
+    </a>
+    <a class="track-card eng" href="english.html">
+      <div class="tk">8 weeks · CELPIP + work</div>
+      <h3>English Plan</h3>
+      <div class="meta" id="engMeta">&nbsp;</div>
+      <div class="tbar"><i id="engBar" style="width:0%"></i></div>
+      <div class="tnums"><b id="engPct">0%</b><span id="engCnt"></span></div>
+    </a>
+  </div>
+
+  <h2 id="todayHd">Up next</h2>
+  <div class="today">
+    <div class="card ai">
+      <h3 id="aiTodayTitle">—</h3>
+      <div class="dl" id="aiTodayWeek"></div>
+      <ul id="aiToday"></ul>
+    </div>
+    <div class="card eng">
+      <h3 id="engTodayTitle">—</h3>
+      <div class="dl" id="engTodayWeek"></div>
+      <ul id="engToday"></ul>
+    </div>
+  </div>
+
+  <h2>Activity · last 12 weeks</h2>
+  <div class="card">
+    <div class="heat" id="heat"></div>
+    <div class="heatlab"><span id="heatFrom"></span><span id="heatTo"></span></div>
+  </div>
+
+  <h2>Resource library · <span id="resCount"></span></h2>
+  <input id="resSearch" type="search" placeholder="Search all resources…" autocomplete="off">
+  <div class="res" id="resList"></div>
+
+</div>
+
+<script src="assets/hub.js"></script>
+<script>Hub.init({page:"home"});</script>
+<script src="assets/data-ai.js"></script>
+<script src="assets/data-eng.js"></script>
+<script src="assets/dashboard.js"></script>
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
+</script>
+</body>
+</html>

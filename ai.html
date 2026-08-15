@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Course · Learning Hub</title>
+<meta name="theme-color" content="#faf9f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Learning">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="assets/page-ai.css">
+<link rel="stylesheet" href="assets/hub.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Ivan's AI Learning Course</h1>
+  <p class="sub">60 days · full-stack → AI engineer → applied scientist · 4–5 hrs/day · all resources free · tuned for MacBook Pro M4 Pro</p>
+
+  <div class="months">
+    <div class="mo on" data-m="1"><div class="mt">Month 1 · Days 1–30</div><div class="ml">AI Engineer</div><div class="mp" id="mp1"></div></div>
+    <div class="mo p2" data-m="2"><div class="mt">Month 2 · Days 31–60</div><div class="ml">Applied Scientist / MLE</div><div class="mp" id="mp2"></div></div>
+  </div>
+
+  <div class="bar">
+    <div class="barTop"><b id="barLabel">Month 1 progress</b><span><span class="pct" id="pct">0%</span> <span style="color:var(--dim);font-size:12.5px" id="cnt"></span></span></div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="views"></div>
+
+  <div style="margin-top:22px;text-align:right"><button class="reset" onclick="resetAll()">Reset all progress</button></div>
+</div>
+
+<script src="assets/hub.js"></script>
+<script>Hub.init({page:"ai"});</script>
+<script src="assets/data-ai.js"></script>
+<script>
+/* storage adapter: the tracker keeps its original API, the hub owns the data */
+let store = Hub.aiStore();
+const save = () => Hub.commitAi(store);
+Hub.onChange(function(){
+  if (document.getElementById("hubModal").classList.contains("on")) return;
+  location.reload();
+});
+</script>
+<script src="assets/app-ai.js"></script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+</body>
+</html>
