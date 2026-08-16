@@ -75,6 +75,32 @@ your laptop are on your phone. A task with saved answers gets a dot on its ? but
 
 ---
 
+## The books
+
+Three O'Reilly titles are woven into the AI course:
+
+| Book | Role | Weeks |
+|---|---|---|
+| **AI Engineering** — Chip Huyen, 2025 | The spine. Written for someone already shipping with foundation models who wants the vocabulary underneath. | 1–4, 7 |
+| **Introduction to ML with Python** — Müller & Guido | The classical-ML gap. The only one that makes you type code. | 5–6 |
+| **Designing ML Systems** — Chip Huyen, 2022 | Production and research practice — drift, monitoring, continual learning. | 6–8 |
+
+Every one of the 56 days has a reading attached — roughly 35 minutes, timed to land the
+same day you build the thing it describes. It appears as the last task of the day, so
+ticking it counts toward the day's progress, and it has its own ID namespace (`read1` …
+`read56`) so it never shifts the positional task IDs.
+
+The **📚 Books** tab on the AI page holds three things: a **decoder** mapping what you
+already do at work to its proper name and the page that explains it (agent, tool
+inventory, planning failure, reflection failure, context efficiency, structured outputs,
+model selection); the full **56-day reading schedule** with clickable day jumps; and a
+**chapter map** for each book with page numbers.
+
+To change a reading, edit `READINGS` in `assets/books.js` — one entry per day,
+`[bookKey, "what to read", "why today"]`.
+
+---
+
 ## 1. Deploy to GitHub Pages
 
 Create an empty repo on GitHub (call it `learning-hub`), then from this folder:
@@ -147,7 +173,7 @@ Two things to know:
   English items are `w{week}d{dayIndex}i{itemIndex}`. Inserting a task in the *middle* of a
   day shifts every later ID, so ticks, logged time and saved answers appear to move.
   Append to the end of a day instead and nothing shifts.
-- **Bump the cache version** in `sw.js` (`learning-hub-v3` → `v4`) whenever you deploy, or
+- **Bump the cache version** in `sw.js` (`learning-hub-v4` → `v5`) whenever you deploy, or
   installed devices may serve the old files for a while.
 
 ---

@@ -80,7 +80,8 @@ window.REF = (function () {
       { key: "res", label: "Resources", html: resHtml },
       { key: "int", label: "Interview Bank", html: intHtml },
       { key: "real", label: "Reality Check", html: realHtml },
-      { key: "loop", label: "⟳ Daily Loop", html: loopHtml }
+      { key: "loop", label: "⟳ Daily Loop", html: loopHtml },
+      { key: "books", label: "📚 Books", html: booksHtml() }
     ];
   }
 
@@ -97,6 +98,64 @@ window.REF = (function () {
       '<div class="card"><h3>Weekly rollup</h3><p>Sunday, 20 minutes — do this instead of the daily loop on rest days.</p>' +
       checkList("ai", WEEKLY_ROLLUP.map(function (s, i) { return { id: "m" + m + "wk" + i, html: s }; })) +
       '</div></div>';
+  }
+
+
+  /* ============================ books ============================ */
+
+  function booksHtml() {
+    var shelf = Object.keys(BOOKS).map(function (k) {
+      var b = BOOKS[k];
+      return '<div class="card book"><div class="book-hd">' +
+        '<span class="book-spine b-' + k + '"></span>' +
+        '<div><h3>' + esc(b.title) + '</h3>' +
+        '<div class="meta">' + esc(b.sub) + ' · ' + esc(b.author) + ' · ' + b.pages + ' pp</div></div></div>' +
+        '<p>' + esc(b.role) + '</p>' +
+        '<table><tr><th>Ch</th><th>Title</th><th>Covers</th><th>p.</th></tr>' +
+        b.toc.map(function (t) {
+          return '<tr><td><strong>' + t[0] + '</strong></td><td><strong>' + esc(t[1]) + '</strong></td>' +
+            '<td>' + esc(t[3]) + '</td><td class="meta" style="white-space:nowrap">' + t[2] + '</td></tr>';
+        }).join("") + '</table></div>';
+    }).join("");
+
+    var rows = "";
+    for (var n = 1; n <= 56; n++) {
+      var r = READINGS[n];
+      if (!r) continue;
+      var day = PLANS.ai[n - 1];
+      var done = Hub.isDone("ai", "read" + n);
+      rows += '<tr class="' + (done ? "read-done" : "") + '">' +
+        '<td><a href="#d' + n + '" class="dayjump">Day ' + n + '</a></td>' +
+        '<td class="meta">' + esc(day ? day.sub : "") + '</td>' +
+        '<td><span class="btag b-' + r[0] + '">' + esc(BOOKS[r[0]].title.replace("Introduction to Machine Learning with Python", "Intro to ML")) + '</span></td>' +
+        '<td>' + esc(r[1]) + '<div class="meta" style="margin-top:4px">' + esc(r[2]) + '</div></td></tr>';
+    }
+
+    var decoder = DECODER.map(function (d, i) {
+      return '<div class="card decode"><div class="decode-you"><span class="decode-n">' + (i + 1) + '</span>' + esc(d.you) + '</div>' +
+        '<h3>' + esc(d.name) + '</h3><p>' + d.body + '</p>' +
+        '<div class="meta">' + esc(d.ref) + '</div></div>';
+    }).join("");
+
+    return '<div class="refpanel">' +
+      '<div class="card warn"><h3>How these three fit together</h3>' +
+      '<p><strong>AI Engineering</strong> carries month 1 — it is written for someone in exactly your position, already shipping with ' +
+      'foundation models and missing the vocabulary underneath. <strong>Intro to ML with Python</strong> carries the classical-ML gap in ' +
+      'weeks 5–6, and it is the only one of the three that makes you type code. <strong>Designing ML Systems</strong> carries production ' +
+      'and research practice in weeks 6–8.</p>' +
+      '<p style="margin-bottom:0">A reading is attached to <strong>every one of the 56 days</strong>, sized at about 35 minutes, and timed ' +
+      'to land the same day you build the thing it describes. It appears as the last task of each day, so ticking it counts toward the day.</p></div>' +
+
+      '<h3 class="subhead">The decoder — what you already do, named properly</h3>' +
+      '<p class="hub-p">You drive agents, skills and harnesses at work without the theory. Every entry below is something you already do, ' +
+      'paired with the term for it and the page that explains it. This is the fastest route from "I use this" to "I can be interviewed on this".</p>' +
+      '<div class="decode-grid">' + decoder + '</div>' +
+
+      '<h3 class="subhead">Reading schedule · 56 days</h3>' +
+      '<table class="readtable"><tr><th>Day</th><th>Course topic</th><th>Book</th><th>Reading</th></tr>' + rows + '</table>' +
+
+      '<h3 class="subhead">Chapter maps</h3>' + shelf +
+      '</div>';
   }
 
   /* ============================ English ============================ */
@@ -275,6 +334,13 @@ window.REF = (function () {
     });
 
     if (track === "eng") { renderQuiz(); renderLog(); }
+    document.getElementById(bodyEl).addEventListener("click", function (e) {
+      var j = e.target.closest(".dayjump");
+      if (!j) return;
+      e.preventDefault();
+      var n = +j.getAttribute("href").slice(2);
+      if (window.DayView) { DayView.go(n - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
+    });
     ASK.paint();
   }
 

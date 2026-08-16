@@ -737,3 +737,59 @@ html[data-theme="light"] .hub-nav nav a.on, .hub-nav nav a.on { color:#fff; }
 .dots i { width:7px; height:7px; border-radius:50%; background:var(--a1); animation:dot 1.1s var(--ease) infinite; }
 .dots i:nth-child(2){ animation-delay:.15s } .dots i:nth-child(3){ animation-delay:.3s }
 @keyframes dot { 0%,60%,100%{opacity:.25; transform:translateY(0)} 30%{opacity:1; transform:translateY(-4px)} }
+
+/* ============================ books ============================ */
+.task .txt .why {
+  display:block; margin-top:5px; font-size:12.5px; color:var(--faint); line-height:1.55;
+}
+.today .task .txt .why, .focus .why { display:none; }
+.focus-task .why { display:block; font-size:15px; color:var(--dim); margin-top:14px; line-height:1.5; }
+
+.subhead {
+  font-size:15px; font-weight:700; letter-spacing:-.2px; margin:30px 0 12px;
+  padding-bottom:9px; border-bottom:1px solid var(--line);
+}
+.refpanel .subhead:first-of-type { margin-top:24px; }
+
+.book .book-hd { display:flex; gap:13px; align-items:flex-start; margin-bottom:10px; }
+.book-spine { flex:0 0 auto; width:5px; align-self:stretch; min-height:38px; border-radius:99px; }
+.b-ai   { background:linear-gradient(180deg,var(--ai-1),var(--ai-2)); }
+.b-dmls { background:linear-gradient(180deg,var(--en-1),var(--en-2)); }
+.b-iml  { background:linear-gradient(180deg,var(--amber),#e8934a); }
+.book .book-hd h3 { margin:0 0 3px; }
+
+.btag {
+  display:inline-block; padding:2px 9px; border-radius:99px; font-size:10.5px; font-weight:750;
+  letter-spacing:.4px; white-space:nowrap;
+}
+.btag.b-ai   { background:color-mix(in srgb,var(--ai-1) 20%,transparent); color:var(--ai-1); }
+.btag.b-dmls { background:color-mix(in srgb,var(--en-1) 20%,transparent); color:var(--en-1); }
+.btag.b-iml  { background:color-mix(in srgb,var(--amber) 22%,transparent); color:var(--amber); }
+
+.readtable td { vertical-align:top; }
+.readtable tr.read-done td { opacity:.45; }
+.readtable a.dayjump {
+  font-weight:700; white-space:nowrap; color:var(--a1); text-decoration:none;
+  border-bottom:1px solid color-mix(in srgb,var(--a1) 40%,transparent);
+}
+
+.decode-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+@media (max-width:800px){ .decode-grid{grid-template-columns:1fr;} }
+.decode { border-left:3px solid var(--a1); }
+.decode-you {
+  display:flex; gap:10px; align-items:flex-start; font-size:13.2px; color:var(--dim);
+  font-style:italic; margin-bottom:11px; padding-bottom:11px; border-bottom:1px dashed var(--line-2);
+}
+.decode-n {
+  flex:0 0 auto; width:21px; height:21px; border-radius:7px; display:grid; place-items:center;
+  background:linear-gradient(140deg,var(--a1),var(--a2)); color:#fff;
+  font-size:11px; font-weight:750; font-style:normal;
+}
+.decode h3 { margin:0 0 8px; font-size:15px; }
+.decode code { background:var(--surf-3); padding:1px 5px; border-radius:4px; font-size:12px; }
+.decode .meta { margin-top:10px; padding-top:9px; border-top:1px solid var(--line); font-size:11.5px; }
+
+/* the "why this today" note shouldn't get struck through with the task */
+.task.done .txt .why { text-decoration:none; }
+/* readings read as a distinct kind of task */
+.task:has(.why) { border-left:3px solid color-mix(in srgb,var(--a1) 45%,transparent); }

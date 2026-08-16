@@ -28,6 +28,18 @@ window.PLANS = (function () {
             return { id: "m" + m + "w" + w.n + "d" + di + "i" + ii, html: it, mins: 0 };
           })
         });
+        // the day's reading, appended with its own id namespace so it never
+        // collides with (or shifts) the positional task ids above
+        var dn = AI_DAYS.length, r = (typeof READINGS !== "undefined") && READINGS[dn];
+        if (r) {
+          AI_DAYS[dn - 1].items.push({
+            id: "read" + dn,
+            html: '<b>Read \u00b7 ' + BOOKS[r[0]].title + '</b> \u2014 ' + r[1] +
+                  '<span class="why">' + r[2] + '</span>',
+            mins: 35,
+            reading: true
+          });
+        }
       });
     });
   });
@@ -130,6 +142,12 @@ window.PLANS = (function () {
   addRes(M2_RES.t2, "AI · Apple Silicon & tooling");
   addRes(M2_RES.yt, "AI · video");
   addRes(DAILY_SOURCES, "AI · daily loop");
+  if (typeof BOOKS !== "undefined") {
+    Object.keys(BOOKS).forEach(function (k) {
+      var b = BOOKS[k];
+      RESOURCES.push({ title: b.title, url: "ai.html#books", desc: b.author + " — " + b.role, group: "Books · your PDFs" });
+    });
+  }
 
   return {
     ai: AI_DAYS, eng: ENG_DAYS, days: days,
