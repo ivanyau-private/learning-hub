@@ -103,7 +103,21 @@ To change a reading, edit `READINGS` in `assets/books.js` — one entry per day,
 
 ## 1. Deploy to GitHub Pages
 
-Create an empty repo on GitHub (call it `learning-hub`), then from this folder:
+From this folder, on your Mac:
+
+```bash
+./deploy.sh
+```
+
+It creates the repo, pushes, turns Pages on, and prints the URL. If you have the `gh` CLI
+signed in it uses that; otherwise it asks once for a GitHub token with the **`repo`** scope
+([github.com/settings/tokens](https://github.com/settings/tokens) → Tokens (classic)). The
+token is not echoed, not saved, and is stripped from the git remote afterwards.
+
+Re-run `./deploy.sh` any time to publish changes — it notices the repo already exists and
+just pushes.
+
+Doing it by hand instead: create an empty repo called `learning-hub`, then
 
 ```bash
 git remote add origin https://github.com/YOUR_USERNAME/learning-hub.git
@@ -111,7 +125,7 @@ git branch -M main
 git push -u origin main
 ```
 
-Then **Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save.**
+and **Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save.**
 
 Live a minute later at `https://YOUR_USERNAME.github.io/learning-hub/`.
 
