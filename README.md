@@ -5,9 +5,9 @@ built around doing **one day at a time**, with progress that follows you between
 and laptop.
 
 ```
-index.html            home: combined progress, one-tap start, live timer,
-                      today's tasks from both plans, the daily AI-update ritual,
-                      activity heatmap, searchable resource library
+index.html            home: combined progress, one-tap start, live timer +
+                      pomodoro, today's tasks from both plans, the daily
+                      AI-update ritual, activity heatmap, resource library
 ai.html               AI course — day by day, 56 days
 english.html          English plan — day by day, 56 days
 
@@ -16,6 +16,7 @@ assets/hub.js         state, cross-device sync, settings, app shell
 assets/ui.js          confetti, toasts, sound, swipe, rings, counters
 assets/plans.js       both curricula flattened into one day-indexed model
 assets/day.js         the day view + focus mode + per-task timer
+assets/pomo.js        the pomodoro: cycle, per-day block count, its widgets
 assets/ref.js         concept map, resources, interview banks, English tools
 assets/ask.js         the ? button on every checkpoint
 assets/data-*.js      plan content
@@ -41,6 +42,7 @@ next one slides in. Finish the day and you get confetti and a jump into tomorrow
 | complete | `space` / `enter` | swipe → |
 | next / previous | `J` `K` or arrows | swipe ← to skip |
 | start / pause timer | `T` | tap the button |
+| start / pause pomodoro | `P` | tap the chip |
 | exit | `esc` | tap Esc |
 
 **The day rail** across the top of each tracker is every day of the plan. Green-tinted
@@ -52,6 +54,17 @@ time. The URL carries the day (`ai.html#d17`), so you can bookmark or share a sp
 estimates, and the ring in focus mode fills toward that target and turns amber when you
 run over. Time is logged per task and totalled on the home page — today and all time.
 The timer stops itself if you switch tabs, so walking away doesn't inflate your numbers.
+
+**Pomodoro.** 25 minutes of focus, 5 off, 15 off after four blocks — all four numbers are
+in Settings. It sits next to the day progress bar on both trackers, in the home timer
+strip, and as a chip in focus mode, and the countdown goes into the tab title so you can
+see it from another tab. It runs on the wall clock, not a page timer: move between pages,
+reload, or reopen the installed app and the block is still ticking. Finished blocks are
+counted per day and synced.
+
+The pomodoro deliberately doesn't log time — the ▸ task timer owns that. Run both at once
+and you get honest per-task minutes plus a count of blocks you actually sat through,
+rather than the same minutes counted twice.
 
 ---
 
@@ -171,8 +184,8 @@ Gist ID it shows you.
 
 Syncs on load, when you switch back to the tab, every 60 seconds while open, and about
 1.5 seconds after any change. Merging is per-item last-write-wins on timestamps, so two
-devices editing different things never overwrite each other; logged time merges by taking
-the larger total, which is always the truer one. Offline changes push when you're back.
+devices editing different things never overwrite each other; logged time and pomodoro
+block counts merge by taking the larger value, which is always the truer one. Offline changes push when you're back.
 
 **Export / Import backup** in the same panel if you'd rather move things by hand.
 

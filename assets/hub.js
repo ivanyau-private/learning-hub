@@ -8,12 +8,13 @@
              errs:   { list:[…], t:ms } }        // whole-array LWW
      time: { id: {ms,t} }                        // seconds spent per task
      qa:   { id: {list:[{q,a,t,via}], t} }       // saved answers per task
-     cfg:  { aiStart, engStart, t }
+     pomo: { "2026-08-17": {n,t} }               // pomodoro blocks finished, per day
+     cfg:  { aiStart, engStart, pomo:{work,short,long,every}, t }
 
    Sync backend: one private GitHub Gist holding the same JSON.
    Per-key last-write-wins on timestamps, so two devices editing different
-   things never clobber each other. Time entries merge by taking the larger
-   accumulated value, which is monotonic and therefore safe.
+   things never clobber each other. Time entries and pomodoro counts merge by
+   taking the larger value, which is monotonic and therefore safe.
    ========================================================================= */
 (function () {
   "use strict";
@@ -29,6 +30,7 @@
   var LS_SOUND = "hub_sound";
   var GIST_FILE = "learning-hub.json";
   var API = "https://api.github.com";
+  var POMO_DEF = { work: 25, short: 5, long: 15, every: 4 };
 
   var now = function () { return Date.now(); };
   var ls = {
@@ -42,6 +44,7 @@
       eng: { done: {}, scores: {}, errs: { list: [], t: 0 } },
       time: {},
       qa: {},
+      pomo: {},
       cfg: { aiStart: "", engStart: "", t: 0 },
       rev: 0
     };
@@ -96,6 +99,7 @@
     if (!Array.isArray(b.eng.errs.list)) b.eng.errs = { list: [], t: 0 };
     b.time = o.time || {};
     b.qa = o.qa || {};
+    b.pomo = o.pomo || {};
     b.cfg = o.cfg || b.cfg;
     b.rev = o.rev || 0;
     return b;
@@ -130,13 +134,13 @@
     }
     return changed;
   }
-  // time accumulates, so the larger value is always the truer one
-  function mergeTime(local, remote) {
+  // time and pomodoro counts only accumulate, so the larger value is the truer one
+  function mergeMax(local, remote, field) {
     var changed = false;
     for (var k in remote) {
       var r = remote[k];
-      if (!r || typeof r.ms !== "number") continue;
-      if (!local[k] || r.ms > local[k].ms) { local[k] = r; changed = true; }
+      if (!r || typeof r[field] !== "number") continue;
+      if (!local[k] || r[field] > local[k][field]) { local[k] = r; changed = true; }
     }
     return changed;
   }
@@ -147,7 +151,8 @@
     if (mergeMap(S.ai.items, remote.ai.items)) changed = true;
     if (mergeMap(S.eng.done, remote.eng.done)) changed = true;
     if (mergeMap(S.eng.scores, remote.eng.scores)) changed = true;
-    if (mergeTime(S.time, remote.time)) changed = true;
+    if (mergeMax(S.time, remote.time, "ms")) changed = true;
+    if (mergeMax(S.pomo, remote.pomo, "n")) changed = true;
     if (mergeMap(S.qa, remote.qa)) changed = true;
     if ((remote.eng.errs.t || 0) > (S.eng.errs.t || 0)) { S.eng.errs = remote.eng.errs; changed = true; }
     if ((remote.cfg.t || 0) > (S.cfg.t || 0)) { S.cfg = remote.cfg; changed = true; }
@@ -292,6 +297,25 @@
   }
   function timeTotal() { var t = 0; for (var id in S.time) t += S.time[id].ms; return t; }
 
+  /* ---- pomodoro: blocks finished per calendar day, plus the durations ---- */
+  function pomoOf(key) { return (S.pomo[key] && S.pomo[key].n) || 0; }
+  function addPomo(when) {
+    var k = dayKey(new Date(when || now()));
+    S.pomo[k] = { n: pomoOf(k) + 1, t: now() };
+    persist(); schedulePush();
+    return S.pomo[k].n;
+  }
+  function pomoToday() { return pomoOf(dayKey(new Date())); }
+  function pomoTotal() { var n = 0; for (var k in S.pomo) n += S.pomo[k].n; return n; }
+  function pomoCfg() {
+    var c = (S.cfg && S.cfg.pomo) || {};
+    return {
+      work: +c.work || POMO_DEF.work, short: +c.short || POMO_DEF.short,
+      long: +c.long || POMO_DEF.long, every: +c.every || POMO_DEF.every
+    };
+  }
+  function setPomoCfg(patch) { setCfg({ pomo: Object.assign(pomoCfg(), patch) }); }
+
   /* ============================ derived stats ============================ */
 
   function dayKey(d) {
@@ -366,6 +390,12 @@
       '<div class="hub-modal-bd">' +
       '<div class="switch" style="margin-bottom:6px"><input type="checkbox" id="hubSound"><label for="hubSound">Sound effects</label></div>' +
       '<hr>' +
+      '<label class="hub-lbl" style="margin-top:18px">Pomodoro <span>minutes per phase</span></label>' +
+      '<div class="hub-row2"><span>Focus block</span><input id="hubPomWork" type="number" min="1" max="180" step="1"></div>' +
+      '<div class="hub-row2"><span>Short break</span><input id="hubPomShort" type="number" min="1" max="60" step="1"></div>' +
+      '<div class="hub-row2"><span>Long break</span><input id="hubPomLong" type="number" min="1" max="90" step="1"></div>' +
+      '<div class="hub-row2"><span>Blocks before a long break</span><input id="hubPomEvery" type="number" min="2" max="12" step="1"></div>' +
+      '<hr>' +
       '<label class="hub-lbl">Start dates <span>so the app knows which day you are on</span></label>' +
       '<div class="hub-row2"><span>AI course</span><input id="hubAiStart" type="date"></div>' +
       '<div class="hub-row2"><span>English plan</span><input id="hubEngStart" type="date"></div>' +
@@ -399,6 +429,11 @@
       document.getElementById("hubAiStart").value = cfg().aiStart || "";
       document.getElementById("hubEngStart").value = cfg().engStart || "";
       document.getElementById("hubSound").checked = soundOn();
+      var pc = pomoCfg();
+      document.getElementById("hubPomWork").value = pc.work;
+      document.getElementById("hubPomShort").value = pc.short;
+      document.getElementById("hubPomLong").value = pc.long;
+      document.getElementById("hubPomEvery").value = pc.every;
       document.getElementById("hubKey").value = apiKey();
       document.getElementById("hubModel").value = apiModel();
       panel.classList.add("on");
@@ -441,6 +476,17 @@
 
     document.getElementById("hubKey").addEventListener("change", function () { ls.set(LS_APIKEY, this.value.trim()); notify(); });
     document.getElementById("hubModel").addEventListener("change", function () { ls.set(LS_MODEL, this.value.trim() || DEFAULT_MODEL); });
+    [["hubPomWork", "work", 1, 180], ["hubPomShort", "short", 1, 60],
+     ["hubPomLong", "long", 1, 90], ["hubPomEvery", "every", 2, 12]].forEach(function (f) {
+      document.getElementById(f[0]).addEventListener("change", function () {
+        var v = Math.max(f[2], Math.min(f[3], Math.round(+this.value || 0) || pomoCfg()[f[1]]));
+        this.value = v;
+        var patch = {}; patch[f[1]] = v;
+        setPomoCfg(patch);
+        if (window.Pomo) Pomo.paint();
+      });
+    });
+
     document.getElementById("hubAiStart").addEventListener("change", function () { setCfg({ aiStart: this.value }); });
     document.getElementById("hubEngStart").addEventListener("change", function () { setCfg({ engStart: this.value }); });
 
@@ -493,6 +539,8 @@
     isDone: isDone, setDone: setDone,
     engErrs: engErrs, setEngErrs: setEngErrs, engScore: engScore, setEngScore: setEngScore,
     timeOf: timeOf, addTime: addTime, timeToday: timeToday, timeTotal: timeTotal,
+    addPomo: addPomo, pomoOf: pomoOf, pomoToday: pomoToday, pomoTotal: pomoTotal,
+    pomoCfg: pomoCfg, setPomoCfg: setPomoCfg,
     qaOf: qaOf, addQa: addQa, delQa: delQa, qaCount: qaCount,
     apiKey: apiKey, apiModel: apiModel,
     cfg: cfg, setCfg: setCfg,

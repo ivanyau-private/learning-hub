@@ -47,7 +47,7 @@
     </a>
   </div>
 
-  <h2 class="sec">Timer</h2>
+  <h2 class="sec">Timer &amp; pomodoro</h2>
   <div class="timerbar" id="timerBar">
     <div class="lead">
       <div class="puck" id="tPuck"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
@@ -58,6 +58,7 @@
       <div><b id="tAll">0m</b><span>all time</span></div>
     </div>
     <button class="btn" id="tStop" style="display:none">Stop &amp; log</button>
+    <div id="homePomo" data-pomo="full"></div>
   </div>
 
   <h2 class="sec" id="todayHd">Up next</h2>
@@ -117,6 +118,7 @@
 <script src="assets/books.js"></script>
 <script src="assets/plans.js"></script>
 <script src="assets/ask.js"></script>
+<script src="assets/pomo.js"></script>
 <script src="assets/dashboard.js"></script>
 <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});</script>
 </body>

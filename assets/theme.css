@@ -489,7 +489,8 @@ html[data-theme="light"] .hub-nav nav a.on, .hub-nav nav a.on { color:#fff; }
 .hub-lbl { display:block; font-weight:650; font-size:13px; margin:16px 0 6px; }
 .hub-lbl span { font-weight:400; color:var(--faint); font-size:12px; }
 .hub-lbl code { background:var(--surf-3); padding:1px 5px; border-radius:4px; font-size:11.5px; }
-.hub-modal-bd input[type=text], .hub-modal-bd input[type=password], .hub-modal-bd input[type=date] {
+.hub-modal-bd input[type=text], .hub-modal-bd input[type=password],
+.hub-modal-bd input[type=date], .hub-modal-bd input[type=number] {
   width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:11px;
   font:inherit; font-size:13.5px; background:var(--surf-2); color:var(--ink);
 }
@@ -498,6 +499,7 @@ html[data-theme="light"] .hub-nav nav a.on, .hub-nav nav a.on { color:#fff; }
 .hub-row2 { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; }
 .hub-row2 span { color:var(--dim); font-size:13.5px; }
 .hub-row2 input { width:auto !important; }
+.hub-row2 input[type=number] { width:74px !important; text-align:center; font-variant-numeric:tabular-nums; }
 .hub-msg { font-size:12.5px; margin:12px 0 0; color:var(--dim); word-break:break-all; }
 .hub-msg.ok { color:var(--en-1); }
 .hub-msg.err { color:var(--rose); }
@@ -648,6 +650,78 @@ html[data-theme="light"] .hub-nav nav a.on, .hub-nav nav a.on { color:#fff; }
 .timerbar .split { display:flex; gap:20px; }
 .timerbar .split div b { display:block; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; }
 .timerbar .split div span { font-size:11px; color:var(--faint); text-transform:uppercase; letter-spacing:.7px; }
+
+/* ============================ pomodoro ============================ */
+.pomo {
+  display:flex; align-items:center; gap:13px; flex-wrap:wrap;
+  background:var(--surf-2); border:1px solid var(--line); border-radius:var(--r-m);
+  padding:11px 14px;
+}
+.dayprog + .pomo { margin:-4px 0 18px; }
+.timerbar .pomo { flex:1 1 250px; background:transparent; border:none; padding:0; }
+/* wide enough that the strip is a single row — give the pomodoro its own column */
+@media (min-width:900px){ .timerbar .pomo { border-left:1px solid var(--line); padding-left:22px; } }
+.pomo.run { border-color:color-mix(in srgb,var(--pc) 45%,transparent); }
+.pomo[data-phase="work"],  .pchip[data-phase="work"]  { --pc:var(--a1); }
+.pomo[data-phase="short"], .pchip[data-phase="short"],
+.pomo[data-phase="long"],  .pchip[data-phase="long"]  { --pc:var(--amber); }
+.pomo[data-phase="idle"],  .pchip[data-phase="idle"]  { --pc:var(--faint); }
+
+.pring { position:relative; width:46px; height:46px; flex:0 0 auto; }
+.pring svg { transform:rotate(-90deg); display:block; }
+.pring .bgc { stroke:var(--surf-3); }
+.pring .fgc { stroke:url(#gradTimer); stroke-linecap:round; transition:stroke-dashoffset .4s linear; }
+/* breaks step outside the track accent so a glance tells you which you are in */
+.pomo[data-phase="short"] .pring .fgc, .pomo[data-phase="long"] .pring .fgc { stroke:var(--amber); }
+.pomo.run .pring::after {
+  content:""; position:absolute; inset:-3px; border-radius:50%;
+  box-shadow:0 0 0 0 color-mix(in srgb,var(--pc) 45%,transparent);
+  animation:breathe 2s var(--ease) infinite;
+}
+.pomo.paused .pring { opacity:.5; }
+
+.pinfo { flex:1 1 100px; min-width:0; }
+.pinfo .ptime {
+  display:block; font-size:19px; font-weight:730; letter-spacing:-.6px; line-height:1.15;
+  font-variant-numeric:tabular-nums;
+}
+.pomo.run .pinfo .ptime { color:var(--pc); }
+.pinfo .pphase { display:block; font-size:11.5px; color:var(--dim); }
+
+.pcount { flex:0 0 auto; text-align:right; }
+.pcount b { display:block; font-size:17px; font-weight:750; line-height:1.1; font-variant-numeric:tabular-nums; }
+.pcount span { display:block; font-size:9.5px; line-height:1.3; color:var(--faint); text-transform:uppercase; letter-spacing:.8px; }
+
+.pacts { display:flex; gap:7px; flex:0 0 auto; }
+.pbtn {
+  width:34px; height:34px; padding:0; border-radius:11px; border:1px solid var(--line);
+  background:var(--surf); color:var(--dim); cursor:pointer; display:grid; place-items:center;
+  transition:.2s var(--ease);
+}
+.pbtn:hover { color:var(--a1); border-color:var(--a1); transform:translateY(-1px); }
+.pbtn.pri { background:linear-gradient(140deg,var(--a1),var(--a2)); color:#fff; border-color:transparent; }
+.pbtn.pri:hover { filter:brightness(1.08); color:#fff; }
+.pomo[data-phase="short"] .pbtn.pri, .pomo[data-phase="long"] .pbtn.pri {
+  background:linear-gradient(140deg,var(--amber),var(--rose));
+}
+
+/* focus mode gets the same engine as a chip — no vertical cost on a phone */
+.pchip { display:flex; flex:0 0 auto; }
+.pchip button {
+  display:flex; align-items:center; gap:7px; height:34px; padding:0 11px;
+  border:1px solid var(--line); background:var(--surf); color:var(--dim);
+  font:inherit; cursor:pointer; transition:.2s var(--ease);
+}
+.pchip button:hover { color:var(--ink); border-color:var(--line-2); }
+.pc-main { border-radius:99px 0 0 99px; border-right:none; }
+.pc-skip { border-radius:0 99px 99px 0; padding:0 10px; }
+.pchip .ptime { font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; }
+.pchip.run .ptime { color:var(--pc); }
+.pchip .pdot { width:8px; height:8px; border-radius:50%; background:var(--pc); flex:0 0 auto; }
+.pchip.run .pdot { animation:hubpulse 2s var(--ease) infinite; }
+.pchip.paused .pdot { opacity:.4; }
+.pchip .pn { text-decoration:none; font-size:10.5px; font-weight:750; color:var(--faint); font-variant-numeric:tabular-nums; }
+.pchip .pn:empty { display:none; }
 
 /* ============================ home today cards ============================ */
 .today { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -812,5 +886,9 @@ html[data-theme="light"] .hub-nav nav a.on, .hub-nav nav a.on { color:#fff; }
   .pip { width:48px; height:56px; }
   .tabbar button { padding:11px 17px; }
   .icon-btn { min-width:40px; height:40px; }
+  .pbtn { width:44px; height:44px; border-radius:14px; }
+  .pchip button { height:44px; }
+  .pc-main { padding:0 13px; }
+  .pc-skip { padding:0 13px; }
   .qa-x, .errcard .x { padding:6px 10px; margin:-6px -10px -6px auto; }
 }

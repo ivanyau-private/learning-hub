@@ -251,6 +251,7 @@
   function renderAll() {
     renderHero(); renderTracks(); renderToday(); renderLoop(); renderHeat();
     paintTimeTotals();
+    if (window.Pomo) Pomo.paint();
     $("setupBanner").style.display = Hub.configured() ? "none" : "flex";
   }
 

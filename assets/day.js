@@ -60,6 +60,7 @@ window.DayView = (function () {
         '<span class="pc" id="dvPc"></span>' +
         (spent ? '<span class="spent">' + UI.human(spent) + ' logged</span>' : "") +
       '</div>' +
+      '<div id="dvPomo"></div>' +
       '<button class="btn pri big wide" id="dvFocus" style="margin-bottom:18px">' + ICON.bolt +
         (st.complete ? "Review this day in focus mode" : st.done ? "Continue — " + (st.total - st.done) + " left" : "Start day " + d.n) + '</button>' +
       '<ul class="tasks" id="dvTasks">' + d.items.map(taskRow).join("") + '</ul>' +
@@ -69,6 +70,7 @@ window.DayView = (function () {
       '</div>';
 
     paintBar(); ASK.paint();
+    if (window.Pomo) Pomo.mount($("#dvPomo"), "full");
     $("#dvFocus").addEventListener("click", function () { openFocus(); });
     $("#dvPrev").addEventListener("click", function () { go(idx - 1); });
     $("#dvNext").addEventListener("click", function () { go(idx + 1); });
@@ -210,14 +212,16 @@ window.DayView = (function () {
         '<button class="icon-btn" id="fExit" aria-label="Exit focus mode">Esc</button>' +
         '<div class="bar"><i id="fBar" style="width:0%"></i></div>' +
         '<span class="steps" id="fSteps"></span>' +
+        '<div id="fPomo"></div>' +
       '</div>' +
       '<div class="focus-body" id="fBody"></div>' +
       '<div class="focus-hint desk">' +
-        '<kbd>space</kbd> complete · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>T</kbd> timer · <kbd>esc</kbd> exit</div>' +
+        '<kbd>space</kbd> complete · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>T</kbd> timer · <kbd>P</kbd> pomodoro · <kbd>esc</kbd> exit</div>' +
       '<div class="focus-hint mob">swipe → to complete · swipe ← to skip</div>';
     document.body.appendChild(focusEl);
 
     $("#fExit", focusEl).addEventListener("click", closeFocus);
+    if (window.Pomo) Pomo.mount($("#fPomo", focusEl), "chip");
     UI.swipe(focusEl, {
       right: function () { completeCurrent(); },
       left: function () { step(1); }
@@ -359,6 +363,7 @@ window.DayView = (function () {
     else if (k === "j" || k === "arrowright" || k === "arrowdown") { e.preventDefault(); step(1); }
     else if (k === "k" || k === "arrowleft" || k === "arrowup") { e.preventDefault(); step(-1); }
     else if (k === "t") { e.preventDefault(); var b = $("#fTimerBtn", focusEl); if (b) b.click(); }
+    else if (k === "p" && window.Pomo) { e.preventDefault(); Pomo.toggle(); }
   });
 
   /* ============================ navigation ============================ */
