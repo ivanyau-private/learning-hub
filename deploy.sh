@@ -72,6 +72,11 @@ if [ "$USE_GH" = 0 ]; then
   ok "Authenticated as $USER_NAME"
 fi
 
+# BSD sed on macOS has no \| alternation, so parse JSON the portable way
+json_bool() { # json_bool KEY  <  json
+  tr ',{}' '\n\n\n' | grep "\"$1\"" | grep -Eo 'true|false' | head -1
+}
+
 api() { # api METHOD PATH [BODY]
   local m="$1" p="$2" body="${3:-}"
   if [ "$USE_GH" = 1 ]; then
@@ -93,8 +98,17 @@ api() { # api METHOD PATH [BODY]
 }
 
 # ---------------------------------------------------------------- repo
-if api GET "/repos/$USER_NAME/$REPO_NAME" >/dev/null 2>&1; then
-  ok "Repo $USER_NAME/$REPO_NAME already exists"
+if REPO_JSON="$(api GET "/repos/$USER_NAME/$REPO_NAME" 2>/dev/null)" && [ -n "$REPO_JSON" ]; then
+  IS_PRIVATE="$(printf '%s' "$REPO_JSON" | json_bool private)"
+  ok "Repo $USER_NAME/$REPO_NAME already exists (private=$IS_PRIVATE)"
+  # PUBLIC=1 on an existing private repo: actually flip it, otherwise the flag
+  # silently did nothing because visibility was only ever set at creation time
+  if [ "$PUBLIC" = "1" ] && [ "$IS_PRIVATE" = "true" ]; then
+    say "Making it public so Pages works on a Free account"
+    api PATCH "/repos/$USER_NAME/$REPO_NAME" '{"private":false}' >/dev/null \
+      && ok "Repo is now public" \
+      || die "Could not change visibility — do it in Settings -> General -> Change visibility."
+  fi
 else
   if [ "$PUBLIC" = "1" ]; then
     VIS='"private":false'; say "Creating $USER_NAME/$REPO_NAME (public)"
@@ -136,7 +150,9 @@ else
     ok "Pages enabled"
   else
     PAGES_OK=0
-    IS_PRIVATE="$(api GET "/repos/$USER_NAME/$REPO_NAME" 2>/dev/null | sed -n 's/.*"private": *\(true\|false\).*/\1/p' | head -1)"
+    PAGES_ERR="$(api POST "/repos/$USER_NAME/$REPO_NAME/pages" \
+                  '{"source":{"branch":"'"$BRANCH"'","path":"/"}}' 2>&1 || true)"
+    IS_PRIVATE="$(api GET "/repos/$USER_NAME/$REPO_NAME" 2>/dev/null | json_bool private)"
     echo
     if [ "$IS_PRIVATE" = "true" ]; then
       printf '\033[1;33m!\033[0m %s\n' "Pages would not turn on for a PRIVATE repo."
@@ -161,7 +177,14 @@ else
 
 MSG
     else
-      say "Could not enable Pages over the API — do it by hand: Settings -> Pages -> Deploy from a branch -> $BRANCH / (root)"
+      printf '\033[1;33m!\033[0m %s\n' "Pages did not turn on. GitHub said:"
+      printf '   %s\n' "$(printf '%s' "$PAGES_ERR" | head -c 300)"
+      echo
+      echo "  Finish it in the browser — it takes one click:"
+      echo "    https://github.com/$USER_NAME/$REPO_NAME/settings/pages"
+      echo "    Source: Deploy from a branch -> Branch: $BRANCH -> folder: / (root) -> Save"
+      echo "    Leave 'Custom domain' EMPTY. You do not need a domain."
+      echo
     fi
   fi
 fi
