@@ -177,7 +177,12 @@ fi
 ok "Live in about a minute at:"
 printf '\033[1;36m   %s\033[0m\n' "$URL"
 echo
-echo "   On iPhone / iPad: open that in Safari → Share → Add to Home Screen."
+# open it straight away on macOS
+command -v open >/dev/null 2>&1 && (sleep 45; open "$URL") >/dev/null 2>&1 &
+
+echo "   Opening in your browser in ~45s, once GitHub finishes the first build."
+echo
+echo "   On iPhone / iPad: open that URL in Safari → Share → Add to Home Screen."
 echo "   Then ⟳ in the app → paste a second token, this one with ONLY the gist"
 echo "   scope → Create new gist → copy the Gist ID onto your other devices."
 echo
