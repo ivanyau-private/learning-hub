@@ -21,6 +21,9 @@ set -euo pipefail
 
 REPO_NAME="${REPO_NAME:-learning-hub}"
 BRANCH="main"
+# Private by default. GitHub Pages from a private repo needs GitHub Pro;
+# on a Free account run:  PUBLIC=1 ./deploy.sh
+PUBLIC="${PUBLIC:-0}"
 cd "$(dirname "$0")"
 
 say()  { printf '\033[1;35m▸\033[0m %s\n' "$*"; }
@@ -37,11 +40,20 @@ fi
 
 # ---------------------------------------------------------------- auth
 USE_GH=0
-if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
-  USE_GH=1
-  USER_NAME="$(gh api user --jq .login)"
-  ok "Using the gh CLI, signed in as $USER_NAME"
-else
+# gh auth status can exit 0 even when the token is bad, so prove it with a real call
+if command -v gh >/dev/null 2>&1; then
+  GH_LOGIN="$(gh api user --jq .login 2>/dev/null || true)"
+  case "$GH_LOGIN" in
+    ""|*[!A-Za-z0-9-]*) GH_LOGIN="" ;;
+  esac
+  if [ -n "$GH_LOGIN" ]; then
+    USE_GH=1
+    USER_NAME="$GH_LOGIN"
+    ok "Using the gh CLI, signed in as $USER_NAME"
+  fi
+fi
+if [ "$USE_GH" = 0 ]; then
+  command -v gh >/dev/null 2>&1 && say "gh is installed but not signed in — run 'gh auth login' to skip this next time"
   say "GitHub token with the 'repo' scope"
   echo "  Create one at https://github.com/settings/tokens → Tokens (classic)"
   echo "  It is not echoed and not saved."
@@ -84,9 +96,13 @@ api() { # api METHOD PATH [BODY]
 if api GET "/repos/$USER_NAME/$REPO_NAME" >/dev/null 2>&1; then
   ok "Repo $USER_NAME/$REPO_NAME already exists"
 else
-  say "Creating $USER_NAME/$REPO_NAME (public — required for Pages on a free plan)"
+  if [ "$PUBLIC" = "1" ]; then
+    VIS='"private":false'; say "Creating $USER_NAME/$REPO_NAME (public)"
+  else
+    VIS='"private":true';  say "Creating $USER_NAME/$REPO_NAME (private)"
+  fi
   api POST "/user/repos" \
-    '{"name":"'"$REPO_NAME"'","description":"Learning Hub — AI course + English plan tracker","public":true,"has_issues":false,"has_wiki":false,"has_projects":false}' \
+    '{"name":"'"$REPO_NAME"'","description":"Learning Hub — AI course + English plan tracker",'"$VIS"',"has_issues":false,"has_wiki":false,"has_projects":false}' \
     >/dev/null
   ok "Repo created"
 fi
@@ -111,17 +127,53 @@ git remote set-url origin "https://github.com/$USER_NAME/$REPO_NAME.git"
 
 # ---------------------------------------------------------------- pages
 say "Turning on GitHub Pages"
+PAGES_OK=1
 if api GET "/repos/$USER_NAME/$REPO_NAME/pages" >/dev/null 2>&1; then
   ok "Pages was already enabled"
 else
-  api POST "/repos/$USER_NAME/$REPO_NAME/pages" \
-    '{"source":{"branch":"'"$BRANCH"'","path":"/"}}' >/dev/null 2>&1 \
-    && ok "Pages enabled" \
-    || say "Could not enable Pages over the API — do it once by hand: Settings → Pages → Deploy from a branch → $BRANCH / (root)"
+  if api POST "/repos/$USER_NAME/$REPO_NAME/pages" \
+       '{"source":{"branch":"'"$BRANCH"'","path":"/"}}' >/dev/null 2>&1; then
+    ok "Pages enabled"
+  else
+    PAGES_OK=0
+    IS_PRIVATE="$(api GET "/repos/$USER_NAME/$REPO_NAME" 2>/dev/null | sed -n 's/.*"private": *\(true\|false\).*/\1/p' | head -1)"
+    echo
+    if [ "$IS_PRIVATE" = "true" ]; then
+      printf '\033[1;33m!\033[0m %s\n' "Pages would not turn on for a PRIVATE repo."
+      cat <<'MSG'
+
+  Publishing Pages from a private repository needs GitHub Pro (about $4/month).
+  On a Free account you have three choices:
+
+    1. Upgrade to Pro, then:  Settings -> Pages -> Deploy from a branch -> main / (root)
+       Note: the repo stays private but the SITE is still reachable by anyone with
+       the URL. Private source, public site.
+
+    2. Make the repo public and keep Pages free:
+         PUBLIC=1 ./deploy.sh
+       The repo holds the study plans only — your progress lives in your browser
+       and in a private Gist, and no tokens are in it.
+
+    3. Host it behind a login instead — Cloudflare Pages can build from a private
+       GitHub repo, and Cloudflare Access puts an email one-time-PIN in front of
+       the site so only you can open it. Free tier, and the only option here that
+       makes the SITE itself private.
+
+MSG
+    else
+      say "Could not enable Pages over the API — do it by hand: Settings -> Pages -> Deploy from a branch -> $BRANCH / (root)"
+    fi
+  fi
 fi
 
 URL="https://$USER_NAME.github.io/$REPO_NAME/"
 echo
+if [ "$PAGES_OK" = "0" ]; then
+  ok "Code is pushed to https://github.com/$USER_NAME/$REPO_NAME"
+  echo "   Once Pages is on it will be at:"
+  printf '\033[1;36m   %s\033[0m\n' "$URL"
+  exit 0
+fi
 ok "Live in about a minute at:"
 printf '\033[1;36m   %s\033[0m\n' "$URL"
 echo

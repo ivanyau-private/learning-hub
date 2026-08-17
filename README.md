@@ -109,10 +109,32 @@ From this folder, on your Mac:
 ./deploy.sh
 ```
 
-It creates the repo, pushes, turns Pages on, and prints the URL. If you have the `gh` CLI
-signed in it uses that; otherwise it asks once for a GitHub token with the **`repo`** scope
-([github.com/settings/tokens](https://github.com/settings/tokens) → Tokens (classic)). The
-token is not echoed, not saved, and is stripped from the git remote afterwards.
+It creates the repo **private**, pushes, turns Pages on, and prints the URL. If you have
+the `gh` CLI signed in it uses that; otherwise it asks once for a GitHub token with the
+**`repo`** scope ([github.com/settings/tokens](https://github.com/settings/tokens) →
+Tokens (classic)). The token is not echoed, not saved, and is stripped from the git remote
+afterwards.
+
+### Private repo vs private site — they are not the same thing
+
+| | repo | site | cost |
+|---|---|---|---|
+| GitHub Free | must be **public** for Pages | public | free |
+| GitHub Pro | private | **still public by URL** | ~$4/mo |
+| Cloudflare Pages + Access | private | **private — email code to open** | free |
+
+Publishing Pages from a private repo needs GitHub Pro. Even then the *site* stays reachable
+by anyone with the URL — GitHub only offers genuinely private, sign-in-gated Pages on
+Enterprise Cloud, which needs an organisation.
+
+If you want the site itself private, skip GitHub Pages: keep the repo private on GitHub
+(free), point **Cloudflare Pages** at it, and put **Cloudflare Access** in front with email
+one-time-PIN. Then opening the URL asks for a code sent to your address, on every device.
+
+On a Free account, publish publicly with `PUBLIC=1 ./deploy.sh`. All three pages carry
+`noindex, nofollow`, so nothing gets into search results either way. The repo contains the
+study plans only — your progress lives in your browser and a private Gist, and there are no
+tokens in it.
 
 Re-run `./deploy.sh` any time to publish changes — it notices the repo already exists and
 just pushes.
