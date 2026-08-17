@@ -142,13 +142,24 @@ the larger total, which is always the truer one. Offline changes push when you'r
 
 ---
 
-## 3. Install it on your phone
+## 3. Install it on your phone and iPad
 
-**iPhone** — open in Safari → Share → *Add to Home Screen*.
+**iPhone / iPad** — open the Pages URL in **Safari** → Share → *Add to Home Screen*.
+Chrome on iOS cannot install web apps; it has to be Safari.
 **Android** — Chrome → menu → *Install app*.
 
-Opens fullscreen like a native app and works offline. Set up sync *before* installing so
-the token comes along.
+It then opens fullscreen with no browser chrome and works offline.
+
+Two iOS-specific things worth knowing:
+
+- **Install it, don't just bookmark it.** Safari clears a site's local storage after about
+  seven days without a visit. A home-screen install is far more durable, and the Gist sync
+  is the real safety net — set sync up on each device and progress can't be lost either way.
+- **Each install has its own storage.** The home-screen app and Safari are separate, so
+  paste the token and Gist ID into whichever one you actually use.
+
+Touch targets are 44pt, the day rail and focus mode both swipe, and the keyboard hint in
+focus mode hides itself on touch devices.
 
 ---
 

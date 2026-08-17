@@ -1,6 +1,6 @@
 /* Learning Hub service worker — offline-first for the app shell.
    Bump CACHE when you deploy new content. */
-const CACHE = "learning-hub-v4";
+const CACHE = "learning-hub-v5";
 const ASSETS = [
   "./", "./index.html", "./ai.html", "./english.html",
   "./assets/theme.css", "./assets/ui.js", "./assets/hub.js",

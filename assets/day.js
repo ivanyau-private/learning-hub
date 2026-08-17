@@ -284,7 +284,7 @@ window.DayView = (function () {
       '<div class="focus-actions">' +
         '<div class="frow">' +
           '<button class="btn" id="fTimerBtn" style="flex:1">' + ICON.play + ' Start timer</button>' +
-          '<button class="btn askbtn-wide" data-ask="' + it.id + '">? Ask</button>' +
+          '<button class="btn askbtn-wide" data-ask="' + it.id + '">Ask</button>' +
         '</div>' +
         '<div class="frow">' +
           '<button class="btn" id="fPrev" aria-label="Previous task">' + ICON.left + '</button>' +
